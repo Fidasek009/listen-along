@@ -14,7 +14,7 @@ A simple web app to that allows you to listen to your friends on Spotify. This w
 git clone https://github.com/Fidasek009/listen-along.git
 ```
 
-2. Find your `sp_dc` cookie
+2. Find your `sp_dc` cookie at https://open.spotify.com/
 
 ![](img/sp_dc-cookie.png)
 

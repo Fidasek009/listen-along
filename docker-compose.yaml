@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     volumes:
@@ -10,7 +10,7 @@ services:
       - SP_DC_COOKIE="<put your cookie here>" # <-- IMPORTANT
 
   frontend:
-    build: 
+    build:
       context: ./frontend
       dockerfile: Dockerfile
     volumes:
