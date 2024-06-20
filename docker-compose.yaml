@@ -1,0 +1,27 @@
+version: '3'
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/usr/src/app
+    environment:
+      - SP_DC_COOKIE="<put your cookie here>" # <-- IMPORTANT
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/usr/src/app
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 6969:8080   # you can change the first value to whatever port you want
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+      - frontend

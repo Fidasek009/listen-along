@@ -1,0 +1,113 @@
+.friend-list-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.friend-list-item:hover {
+    background-color: #2a2a2a;
+}
+
+.list-user {
+    margin: 10px;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.list-user img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.list-user p {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    max-width: 100px;
+}
+
+.list-track {
+    margin: 10px;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.list-track img {
+    width: 50px;
+    height: 50px;
+    margin: 5px;
+}
+
+.trackName {
+    margin: 5px;
+    font-size: 20px;
+}
+
+.artistName {
+    margin: 5px;
+    font-size: 15px;
+    color: #696969;
+}
+
+.list-playlist {
+    margin-left: 10px;
+    min-width: 300px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.list-playlist p {
+    margin: 5px;
+    margin-left: 5px;
+}
+
+.listen-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: auto;
+    margin-right: 10px;
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #555;
+}
+
+.red {
+    background-color: #df1f1f;
+}
+
+.green {
+    background-color: #1fdf64;
+}
+
+
+@media screen and (max-width: 600px) {
+    .list-user {
+        font-size: 12px;
+    }
+
+    .trackName {
+        font-size: 12px;
+    }
+
+    .artistName {
+        font-size: 10px;
+    }
+
+    .list-track {
+        max-width: 250px;
+    }
+
+    .list-playlist {
+        font-size: 12px;
+    }
+}

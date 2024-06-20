@@ -1,0 +1,27 @@
+html, body {
+    background-color: #000;
+    height: 100vh;
+}
+
+.App {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+}
+
+.friend-list-wrapper {
+    min-width: 50vw;
+    max-width: 80vw;
+    border-radius: 20px;
+    background-color: #121212;
+}
+
+
+@media screen and (max-width: 600px) {
+    .friend-list-wrapper {
+        width: 95vw;
+        max-width: 95vw;
+    }
+}
