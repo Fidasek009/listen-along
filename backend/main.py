@@ -40,6 +40,10 @@ class AccessToken:
         self.client_id = res["clientId"]
         self.expiration = res["accessTokenExpirationTimestampMs"]
 
+        if not self.isValid():
+            print("⛔: Failed to refresh token.")
+            exit(1)
+
 
 app = FastAPI()
 token = AccessToken(COOKIE)
@@ -101,7 +105,7 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/get-activity", response_model=dict)
+@app.get("/get-activity")
 async def get_activity():
     response = get(ACTIVITY_URL, headers={"Authorization": f"Bearer {token}"})
 
@@ -109,7 +113,7 @@ async def get_activity():
         return response.json()
     except:
         print("⛔: Invalid token.")
-        print(response)
+        print(response.text)
         return HTTPException(status_code=418, detail="Invalid token.")
 
 

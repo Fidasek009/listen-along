@@ -13,7 +13,7 @@ function App() {
 
     return (
         <div className="App">
-			<h1>Friend Activity</h1>
+			<h1>Listen Along</h1>
 			<div className="friend-list-wrapper">
 				{friends.map((friend, index) => (
 					<ListItem key={index} {...friend} />
