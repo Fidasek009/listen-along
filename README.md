@@ -18,22 +18,15 @@ git clone https://github.com/Fidasek009/listen-along.git
 
 ![](img/sp_dc-cookie.png)
 
-3. Put the cookie into the `docker-compose.yaml` file
+3. Create a `.env` file containing your cookie
 
-```yaml
-# ...
-    volumes:
-      - ./backend:/usr/src/app
-    environment:
-      - SP_DC_COOKIE="<put your cookie here>" # <-- IMPORTANT
-
-  frontend:
-# ...
+```bash
+cd listen-along
+echo 'SP_DC_COOKIE="<your cookie>"' > .env
 ```
 
 4. Run the app
 
 ```bash
-cd listen-along
 docker-compose up -d
 ```

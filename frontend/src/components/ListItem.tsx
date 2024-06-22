@@ -2,13 +2,25 @@ import React, { useState, useEffect } from 'react'
 import { FriendActivity } from '../util/types'
 import { listenAlong, stopListening } from '../util/APIClient'
 import "./ListItem.css"
-import { QueueMusic, Album, Person, PlayArrow, Pause } from '@mui/icons-material' // https://mui.com/material-ui/material-icons
+import { QueueMusic, Album, Person, PlayArrow, Pause, Diversity1 } from '@mui/icons-material' // https://mui.com/material-ui/material-icons
 
 
 const isActive = (timestamp: number): boolean => {
     const diff = Date.now() - timestamp
     // active in the last 10 minutes
     return diff < 600000
+}
+
+const getLastActivityString = (timestamp: number): string => {
+    const diff = (Date.now() - timestamp) / 1000
+    const seconds = diff % 60
+    const minutes = Math.floor(diff / 60) % 60
+    const hours = Math.floor(diff / 3600) % 24
+    const days = Math.floor(diff / 86400)
+
+    if (days > 0) return `${days}d`
+    if (hours > 0) return `${hours}h`
+    return `${minutes}:${seconds < 10 ? "0" : ""}${Math.floor(seconds)}`
 }
 
 const openUri = (uri: string) => {
@@ -44,16 +56,12 @@ const ListItem: React.FC<FriendActivity> = ({ timestamp, user, track }) => {
     const handleClick = async (user_uri: string) => {    
         if(!active) return;
 
-        if (listening) {
-            //setBtnColor("green")
+        if (listening)
             stopListening()
-            setListening(false)
-            return;
-        }
+        else
+            listenAlong(user_uri)
 
-        //setBtnColor("red")
-        listenAlong(user_uri)
-        setListening(true)
+        setListening(!listening)
     };
 
     return (
@@ -75,8 +83,11 @@ const ListItem: React.FC<FriendActivity> = ({ timestamp, user, track }) => {
                     <p>{track.context.name}</p>
                 </div>
             </div>
-            <div className={`listen-btn ${btnColor}`} onClick={() => handleClick(user.uri)}>
-                { listening ? <Pause /> : <PlayArrow /> }
+            <div className="list-play">
+                <div className={`listen-btn ${btnColor}`} onClick={() => handleClick(user.uri)}>
+                    { listening ? <Pause /> : <PlayArrow /> }
+                </div>
+                <p>{getLastActivityString(timestamp)}</p>
             </div>
         </div>
     )
