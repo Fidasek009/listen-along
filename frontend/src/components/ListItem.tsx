@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { FriendActivity } from '../util/types'
 import { listenAlong, stopListening } from '../util/APIClient'
 import "./ListItem.css"
-import { QueueMusic, Album, Person, PlayArrow, Pause, Diversity1 } from '@mui/icons-material' // https://mui.com/material-ui/material-icons
+import { QueueMusic, Album, Person, PlayArrow, Pause } from '@mui/icons-material'   // https://mui.com/material-ui/material-icons
 
 
 const isActive = (timestamp: number): boolean => {

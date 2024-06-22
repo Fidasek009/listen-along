@@ -121,5 +121,6 @@
 
     .list-playlist {
         font-size: 12px;
+        width: 150px;
     }
 }
