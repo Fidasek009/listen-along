@@ -19,6 +19,7 @@ function App() {
 					<ListItem key={index} {...friend} />
 				))}
 			</div>
+            <a href="/api/log" className="log-btn">View Logs</a>
         </div>
     );
 }
