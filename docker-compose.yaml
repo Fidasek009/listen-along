@@ -5,17 +5,15 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    volumes:
-      - ./backend:/usr/src/app
     environment:
       SP_DC_COOKIE: ${SP_DC_COOKIE} # Use environment variable from .env file or environment
+    restart: unless-stopped
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    volumes:
-      - ./frontend:/usr/src/app
+    restart: unless-stopped
 
   nginx:
     image: nginx:latest
@@ -26,6 +24,7 @@ services:
     depends_on:
       - backend
       - frontend
+    restart: unless-stopped
 
 networks:
   default:
