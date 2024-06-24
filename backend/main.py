@@ -17,7 +17,7 @@ COOKIE = getenv("SP_DC_COOKIE")
 WEB_TOKEN_URL = "https://open.spotify.com/get_access_token?reason=transport&productType=web_player"
 ACTIVITY_URL = "https://guc-spclient.spotify.com/presence-view/v1/buddylist"
 SILENCE_URI = "spotify:track:57g9uWuZI1t822eLvEVQjn"
-LISTENING_TIMEOUT = 15  # ammount of seconds to wait for new song before assuming user went offline
+LISTENING_TIMEOUT = 28  # ammount of seconds to wait for new song before assuming user went offline
 
 # ========== CLASSES ==========
 
@@ -115,7 +115,7 @@ def play_song(song_uri: str, offset: int) -> int:
 async def stop_player():
     global player
 
-    if player is None:
+    if player is None or not player.is_alive():
         return
 
     try:
