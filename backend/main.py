@@ -118,6 +118,29 @@ def play_song(song_uri: str, offset: int) -> int:
     return duration
 
 
+async def stop_player():
+    global player
+
+    if player is None:
+        return
+
+    try:
+        # ask nicely
+        player.terminate()
+        # wait 2 seconds
+        player.join(timeout=2)
+        
+        # don't ask nicely
+        if player.is_alive():
+            player.kill()
+            log.warning("🔫: Had to forcefully kill player process.")
+    except Exception as e:
+        log.error(f"⛔: Error when terminating player process: {e}")
+    finally:
+        player = None
+        log.info("⏹️: Stopped listening.")
+
+
 def uri_to_url(uri: str) -> str:
     tokens = uri.split(':')
     return f"https://open.spotify.com/{tokens[1]}/{tokens[2]}"
@@ -171,27 +194,14 @@ async def get_activity():
 @app.get("/listen-along", response_class=JSONResponse)
 async def listen_along(user_uri: str):
     global player
-
-    if player:
-        player.terminate()
-        player.join()
-        player = None
-
+    await stop_player()
     player = mp.Process(target=player_run, args=(user_uri,))
     player.start()
-
     log.info(f"▶️: Listening along to: {uri_to_url(user_uri)}")
     return {"status": "ok"}
 
 
 @app.get("/stop-listening", response_class=JSONResponse)
 async def stop_listening():
-    global player
-
-    if player:
-        player.terminate()
-        player.join()
-        player = None
-
-    log.info("⏹️: Stopped listening.")
+    await stop_player()
     return {"status": "ok"}
