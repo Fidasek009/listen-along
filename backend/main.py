@@ -100,14 +100,8 @@ def player_run(user_uri: str):
 def play_song(song_uri: str, offset: int) -> int:
     features = api.audio_features(song_uri)
     duration = features[0]["duration_ms"]
-
     # silence is there in order for the player to stay active between songs
-    songs = [SILENCE_URI]
-
-    # the wanted song could've just ended
-    if offset < duration:
-        log.info(f"🎵: Playing song: {uri_to_url(song_uri)}")
-        songs.insert(0, song_uri)
+    songs = [song_uri, SILENCE_URI]
 
     try:
         api.start_playback(uris=songs, position_ms=offset)
