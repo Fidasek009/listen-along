@@ -16,8 +16,7 @@ log.basicConfig(level=log.INFO,
 COOKIE = getenv("SP_DC_COOKIE")
 WEB_TOKEN_URL = "https://open.spotify.com/get_access_token?reason=transport&productType=web_player"
 ACTIVITY_URL = "https://guc-spclient.spotify.com/presence-view/v1/buddylist"
-SILENCE_URI = "spotify:track:57g9uWuZI1t822eLvEVQjn"
-LISTENING_TIMEOUT = 28  # ammount of seconds to wait for new song before assuming user went offline
+LISTENING_TIMEOUT = 30  # ammount of seconds to wait for new song before assuming user went offline
 
 # ========== CLASSES ==========
 
@@ -75,7 +74,8 @@ def player_run(user_uri: str):
 
                 # song changed
                 if timestamp != last_activity_ts:
-                    song_duration = play_song(track_uri, offset)
+                    context_uri = item["track"]["context"]["uri"]
+                    song_duration = play_song(track_uri, context_uri, offset)
                     # failed to play song
                     if song_duration == -1:
                         exit()
@@ -97,14 +97,13 @@ def player_run(user_uri: str):
         sleep(1)
 
 
-def play_song(song_uri: str, offset: int) -> int:
+def play_song(song_uri: str, context_uri: str, offset: int) -> int:
     features = api.audio_features(song_uri)
     duration = features[0]["duration_ms"]
-    # silence is there in order for the player to stay active between songs
-    songs = [song_uri, SILENCE_URI]
 
     try:
-        api.start_playback(uris=songs, position_ms=offset)
+        api.start_playback(context_uri=context_uri, offset={"uri": song_uri}, position_ms=offset)
+        log.info(f"🎵: Playing song: {uri_to_url(song_uri)}")
     except SpotifyException as e:
         log.error(f"❌: Failed to play song with reason: {e.reason}")
         return -1
