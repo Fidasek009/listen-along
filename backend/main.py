@@ -69,13 +69,14 @@ def player_run(user_uri: str):
 
         for item in users:
             if item["user"]["uri"] == user_uri:
-                track_uri = item["track"]["uri"]
                 timestamp = item["timestamp"]
                 offset = int(time() * 1000 - timestamp)
 
                 # song changed
                 if timestamp != last_activity_ts:
-                    song_duration = play_song(track_uri, offset)
+                    track_uri = item["track"]["uri"]
+                    track_name = item["track"]["name"]
+                    song_duration = play_song(track_uri, track_name, offset)
                     # failed to play song
                     if song_duration == -1:
                         exit()
@@ -87,7 +88,7 @@ def player_run(user_uri: str):
                 # song stopped
                 if offset > song_duration:
                     if exit_counter == LISTENING_TIMEOUT:
-                        log.info(f"⚠️: Song over. Duration: {song_duration // 1000}s, Offset: {offset // 1000}s")
+                        log.info(f"⚠️: User stopped listening to music. (waited {(offset - song_duration) // 1000}s)")
                         exit()
                     else:
                         exit_counter += 1
@@ -97,7 +98,7 @@ def player_run(user_uri: str):
         sleep(1)
 
 
-def play_song(song_uri: str, offset: int) -> int:
+def play_song(song_uri: str, song_name: str, offset: int) -> int:
     features = api.audio_features(song_uri)
     duration = features[0]["duration_ms"]
     # silence is there in order for the player to stay active between songs
@@ -109,6 +110,7 @@ def play_song(song_uri: str, offset: int) -> int:
         log.error(f"❌: Failed to play song with reason: {e.reason}")
         return -1
 
+    log.info(f"🎵: Playing song: {song_name}")
     return duration
 
 
