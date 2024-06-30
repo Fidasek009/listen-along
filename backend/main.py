@@ -17,7 +17,7 @@ COOKIE = getenv("SP_DC_COOKIE")
 WEB_TOKEN_URL = "https://open.spotify.com/get_access_token?reason=transport&productType=web_player"
 ACTIVITY_URL = "https://guc-spclient.spotify.com/presence-view/v1/buddylist"
 SILENCE_URI = "spotify:track:57g9uWuZI1t822eLvEVQjn"
-LISTENING_TIMEOUT = 28  # ammount of seconds to wait for new song before assuming user went offline
+LISTENING_TIMEOUT = 30  # ammount of seconds to wait for new song before assuming user went offline
 
 # ========== CLASSES ==========
 
@@ -102,7 +102,7 @@ def play_song(song_uri: str, song_name: str, offset: int) -> int:
     features = api.audio_features(song_uri)
     duration = features[0]["duration_ms"]
     # silence is there in order for the player to stay active between songs
-    songs = [song_uri, SILENCE_URI]
+    songs = [song_uri]
 
     try:
         api.start_playback(uris=songs, position_ms=offset)
@@ -110,7 +110,12 @@ def play_song(song_uri: str, song_name: str, offset: int) -> int:
         log.error(f"❌: Failed to play song with reason: {e.reason}")
         return -1
 
-    log.info(f"🎵: Playing song: {song_name}")
+    if offset < duration:
+        offset //= 1000
+        minutes = offset // 60
+        seconds = offset % 60
+        log.info(f"🎵: Playing song: {song_name} ({minutes}:{'0' if seconds < 10 else ''}{seconds})")
+
     return duration
 
 
@@ -129,7 +134,7 @@ async def stop_player():
         # don't ask nicely
         if player.is_alive():
             player.kill()
-            log.warning("🔫: Had to forcefully kill player process.")
+            log.warn("🔫: Had to forcefully kill player process.")
     except Exception as e:
         log.error(f"⛔: Error when terminating player process: {e}")
     finally:
