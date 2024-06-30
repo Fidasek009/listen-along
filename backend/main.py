@@ -16,7 +16,6 @@ log.basicConfig(level=log.INFO,
 COOKIE = getenv("SP_DC_COOKIE")
 WEB_TOKEN_URL = "https://open.spotify.com/get_access_token?reason=transport&productType=web_player"
 ACTIVITY_URL = "https://guc-spclient.spotify.com/presence-view/v1/buddylist"
-SILENCE_URI = "spotify:track:57g9uWuZI1t822eLvEVQjn"
 LISTENING_TIMEOUT = 30  # ammount of seconds to wait for new song before assuming user went offline
 
 # ========== CLASSES ==========
@@ -68,32 +67,34 @@ def player_run(user_uri: str):
         users = activity.json()["friends"]
 
         for item in users:
-            if item["user"]["uri"] == user_uri:
-                timestamp = item["timestamp"]
-                offset = int(time() * 1000 - timestamp)
+            if item["user"]["uri"] != user_uri:
+                continue
 
-                # song changed
-                if timestamp != last_activity_ts:
-                    track_uri = item["track"]["uri"]
-                    track_name = item["track"]["name"]
-                    song_duration = play_song(track_uri, track_name, offset)
-                    # failed to play song
-                    if song_duration == -1:
-                        exit()
+            timestamp = item["timestamp"]
+            offset = int(time() * 1000 - timestamp)
 
-                    last_activity_ts = timestamp
-                    exit_counter = 0
-                    break
+            # song changed
+            if timestamp != last_activity_ts:
+                track_uri = item["track"]["uri"]
+                track_name = item["track"]["name"]
+                song_duration = play_song(track_uri, track_name, offset)
+                # failed to play song
+                if song_duration == -1:
+                    exit()
 
-                # song stopped
-                if offset > song_duration:
-                    if exit_counter == LISTENING_TIMEOUT:
-                        log.info(f"⚠️: User stopped listening to music. (waited {(offset - song_duration) // 1000}s)")
-                        exit()
-                    else:
-                        exit_counter += 1
-
+                last_activity_ts = timestamp
+                exit_counter = 0
                 break
+
+            # song stopped
+            if offset > song_duration:
+                if exit_counter == LISTENING_TIMEOUT:
+                    log.info(f"⚠️: User stopped listening to music. (waited {(offset - song_duration) // 1000}s)")
+                    exit()
+                else:
+                    exit_counter += 1
+
+            break
 
         sleep(1)
 
@@ -101,21 +102,21 @@ def player_run(user_uri: str):
 def play_song(song_uri: str, song_name: str, offset: int) -> int:
     features = api.audio_features(song_uri)
     duration = features[0]["duration_ms"]
-    # silence is there in order for the player to stay active between songs
-    songs = [song_uri]
 
     try:
-        api.start_playback(uris=songs, position_ms=offset)
+        api.start_playback(uris=[song_uri], position_ms=offset)
     except SpotifyException as e:
         log.error(f"❌: Failed to play song with reason: {e.reason}")
         return -1
 
-    if offset < duration:
-        offset //= 1000
-        minutes = offset // 60
-        seconds = offset % 60
-        log.info(f"🎵: Playing song: {song_name} ({minutes}:{'0' if seconds < 10 else ''}{seconds})")
+    # song over
+    if offset >= duration:
+        return 0
 
+    offset //= 1000
+    minutes = offset // 60
+    seconds = offset % 60
+    log.info(f"🎵: Playing song: {song_name} ({minutes}:{'0' if seconds < 10 else ''}{seconds})")
     return duration
 
 
@@ -126,17 +127,9 @@ async def stop_player():
         return
 
     try:
-        # ask nicely
-        player.terminate()
-        # wait 2 seconds
-        player.join(timeout=2)
-        
-        # don't ask nicely
-        if player.is_alive():
-            player.kill()
-            log.warn("🔫: Had to forcefully kill player process.")
+        player.kill()
     except Exception as e:
-        log.error(f"⛔: Error when terminating player process: {e}")
+        log.error(f"⛔: Error when killing player process: {e}")
     finally:
         player = None
         log.info("⏹️: Stopped listening.")
@@ -178,7 +171,7 @@ def read_root():
 
 @app.get("/log", response_class=PlainTextResponse)
 async def get_log():
-    return tail("backend.log", 50)
+    return tail("backend.log", 30)
 
 
 @app.get("/get-activity")
