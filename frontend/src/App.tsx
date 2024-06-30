@@ -15,7 +15,7 @@ function App() {
         <div className="App">
 			<h1>Listen Along</h1>
 			<div className="friend-list-wrapper">
-				{friends.map((friend, index) => (
+				{[...friends].reverse().map((friend, index) => (
 					<ListItem key={index} {...friend} />
 				))}
 			</div>
