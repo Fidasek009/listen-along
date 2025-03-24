@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
 from requests import get
+from requests.exceptions import HTTPError
 from time import time, sleep
 from os import getenv, SEEK_END
 from spotipy import Spotify
@@ -42,13 +43,19 @@ class AccessToken:
         return self.expiration > time() * 1000
 
     def refresh(self):
-        res = get(WEB_TOKEN_URL, headers={"Cookie": f"sp_dc={self.sp_dc_cookie}"})
-        res = res.json()
-        self.accessToken = res["accessToken"]
-        self.client_id = res["clientId"]
-        self.expiration = res["accessTokenExpirationTimestampMs"]
-        self.api.set_auth(self.accessToken)
-        log.info("🔑: Token refreshed.")
+        try:
+            res = get(WEB_TOKEN_URL, headers={"Cookie": f"sp_dc={self.sp_dc_cookie}"})
+            res.raise_for_status()
+            res = res.json()
+            self.accessToken = res["accessToken"]
+            self.client_id = res["clientId"]
+            self.expiration = res["accessTokenExpirationTimestampMs"]
+            self.api.set_auth(self.accessToken)
+            log.info("🔑: Token refreshed.")
+        except HTTPError as e:
+            log.error(f"❌: Spotify returned status code {e.response.status_code} with reason: {e.response.text}")
+        except Exception as e:
+            log.error(f"❌: Failed to refresh token with reason: {e}")
 
 # ========== AUX ==========
 
