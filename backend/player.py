@@ -3,8 +3,8 @@
 from time import time, sleep
 
 from requests import get
-from spotipy import Spotify
-from spotipy.exceptions import SpotifyException
+from spotipy import Spotify  # type: ignore
+from spotipy.exceptions import SpotifyException  # type: ignore
 
 from config import ACTIVITY_URL, USER_AGENT, LISTENING_TIMEOUT
 from logger import log

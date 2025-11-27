@@ -5,7 +5,7 @@ from email.utils import parsedate_to_datetime
 
 from requests import Session, get
 from requests.exceptions import HTTPError
-from spotipy import Spotify
+from spotipy import Spotify   # type: ignore
 
 from config import (
     TOKEN_URL,

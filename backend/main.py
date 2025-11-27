@@ -5,7 +5,7 @@ import multiprocessing as mp
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import PlainTextResponse, JSONResponse
 from requests import get
-from spotipy import Spotify
+from spotipy import Spotify  # type: ignore
 
 from config import COOKIE, ACTIVITY_URL, USER_AGENT
 from logger import log, LOG_FILE
@@ -22,7 +22,7 @@ api = Spotify()
 
 if not COOKIE:
     log.error("❌: SP_DC_COOKIE environment variable is not set")
-    raise RuntimeError("SP_DC_COOKIE environment variable is required")
+    raise RuntimeError("SP_DC_COOKIE environment variable is required");
 
 token = AccessToken(COOKIE, api)
 player: mp.Process | None = None
