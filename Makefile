@@ -8,7 +8,7 @@ build: ## Build containers
 	docker compose build
 
 up: ## Start containers
-	docker compose up
+	docker compose up -d
 
 down: ## Stop containers
 	docker compose down
