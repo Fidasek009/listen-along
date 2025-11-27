@@ -1,71 +1,78 @@
-import React, { useState, useEffect } from 'react'
-import { FriendActivity } from '../util/types'
-import { listenAlong, stopListening } from '../util/APIClient'
-import "./ListItem.css"
-import { QueueMusic, Album, Person, PlayArrow, Pause } from '@mui/icons-material'   // https://mui.com/material-ui/material-icons
-
+import React, { useState, useEffect } from "react";
+import { FriendActivity } from "../util/types";
+import { listenAlong, stopListening } from "../util/APIClient";
+import "./ListItem.css";
+import { QueueMusic, Album, Person, PlayArrow, Pause } from "@mui/icons-material";
 
 const isActive = (timestamp: number): boolean => {
-    const diff = Date.now() - timestamp
-    // active in the last 10 minutes
-    return diff < 600000
-}
+    const diff = Date.now() - timestamp;
+    return diff < 600000;
+};
 
 const getLastActivityString = (timestamp: number): string => {
-    const diff = (Date.now() - timestamp) / 1000
-    const seconds = diff % 60
-    const minutes = Math.floor(diff / 60) % 60
-    const hours = Math.floor(diff / 3600) % 24
-    const days = Math.floor(diff / 86400)
+    const diff = (Date.now() - timestamp) / 1000;
+    const seconds = diff % 60;
+    const minutes = Math.floor(diff / 60) % 60;
+    const hours = Math.floor(diff / 3600) % 24;
+    const days = Math.floor(diff / 86400);
 
-    if (days > 0) return `${days}d`
-    if (hours > 0) return `${hours}h`
-    return `${minutes}:${seconds < 10 ? "0" : ""}${Math.floor(seconds)}`
-}
+    if (days > 0) return `${days}d`;
+    if (hours > 0) return `${hours}h`;
+    return `${minutes}:${seconds < 10 ? "0" : ""}${Math.floor(seconds)}`;
+};
 
 const openUri = (uri: string) => {
-    const [_, type, id] = uri.split(":")
-    const url = `https://open.spotify.com/${type}/${id}`
-    window.open(url, '_blank')
-}
+    const [, type, id] = uri.split(":");
+    const url = `https://open.spotify.com/${type}/${id}`;
+    window.open(url, "_blank");
+};
 
 const ListItem: React.FC<FriendActivity> = ({ timestamp, user, track }) => {
-    let active = isActive(timestamp)
-    let playlist_type = track.context.uri.split(":")[1]
-    let playlist_icon = null
+    const active = isActive(timestamp);
+    const playlistType = track.context.uri.split(":")[1];
 
-    switch (playlist_type) {
-        case "playlist":
-            playlist_icon = <QueueMusic />
-            break
-        case "album":
-            playlist_icon = <Album />
-            break
-        case "artist":
-            playlist_icon = <Person />
-            break
-    }
+    const getPlaylistIcon = () => {
+        switch (playlistType) {
+            case "playlist":
+                return <QueueMusic />;
+            case "album":
+                return <Album />;
+            case "artist":
+                return <Person />;
+            default:
+                return null;
+        }
+    };
 
     const [btnColor, setBtnColor] = useState("");
-    const [listening, setListening] = useState(false)
+    const [listening, setListening] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        setBtnColor(active ? listening ? "red" : "green" : "");
+        setBtnColor(active ? (listening ? "red" : "green") : "");
     }, [active, listening]);
 
-    const handleClick = async (user_uri: string) => {    
-        if(!active) return;
+    const handleClick = async (userUri: string) => {
+        if (!active) return;
 
-        if (listening)
-            stopListening()
-        else
-            listenAlong(user_uri)
-
-        setListening(!listening)
+        setError(null);
+        try {
+            if (listening) {
+                await stopListening();
+            } else {
+                await listenAlong(userUri);
+            }
+            setListening(!listening);
+        } catch (e) {
+            const message = e instanceof Error ? e.message : "Unknown error";
+            setError(message);
+            console.error("Listen action failed:", e);
+        }
     };
 
     return (
         <div className="friend-list-item">
+            {error && <div className="item-error">{error}</div>}
             <div className="list-user" onClick={() => openUri(user.uri)}>
                 <img src={user.imageUrl || "/unknown.png"} alt="user" />
                 <p>{user.name}</p>
@@ -79,18 +86,18 @@ const ListItem: React.FC<FriendActivity> = ({ timestamp, user, track }) => {
                     </div>
                 </div>
                 <div className="list-playlist" onClick={() => openUri(track.context.uri)}>
-                    {playlist_icon}
+                    {getPlaylistIcon()}
                     <p>{track.context.name}</p>
                 </div>
             </div>
             <div className="list-play">
                 <div className={`listen-btn ${btnColor}`} onClick={() => handleClick(user.uri)}>
-                    { listening ? <Pause /> : <PlayArrow /> }
+                    {listening ? <Pause /> : <PlayArrow />}
                 </div>
                 <p>{getLastActivityString(timestamp)}</p>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default ListItem
+export default ListItem;

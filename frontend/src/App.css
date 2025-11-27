@@ -32,6 +32,29 @@ body {
     font-weight: bold;
 }
 
+.error-banner {
+    background-color: #ff4444;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 10px 0;
+    max-width: 80vw;
+    text-align: center;
+}
+
+.item-error {
+    background-color: #ff4444;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
 
 @media screen and (max-width: 600px) {
     .friend-list-wrapper {

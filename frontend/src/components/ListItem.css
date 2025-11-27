@@ -5,6 +5,7 @@
     margin: 5px;
     padding: 5px;
     border-radius: 10px;
+    position: relative;
 }
 
 .friend-list-item:hover {
