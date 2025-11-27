@@ -1,8 +1,5 @@
 # Listen Along
 
-> [!CAUTION]
-> Spotify has restricted obtaining access token using the `sp_dc` cookie. This project is no longer functional. I currently have no time to fix it.
-
 ## About
 
 A simple web app to that allows you to listen to your friends on Spotify. This works for all your followed users who share their spotify activity. You just need to supply it with your `sp_dc` cookie from your browser which should last a year.
@@ -31,5 +28,5 @@ echo 'SP_DC_COOKIE="<your cookie>"' > .env
 4. Run the app
 
 ```bash
-docker-compose up -d
+make up
 ```
